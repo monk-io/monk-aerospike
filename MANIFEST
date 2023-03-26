@@ -1,0 +1,2 @@
+REPO aerospike
+LOAD aerospike.yml
