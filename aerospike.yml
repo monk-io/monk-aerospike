@@ -19,7 +19,7 @@ aerospike:
       value: 3000
     volume_local:
       type: string
-      value: <- `${monk-volume-path}/grdidb`
+      value: <- `${monk-volume-path}/aerospike`
   containers:
     db:
       image: 'aerospike'
