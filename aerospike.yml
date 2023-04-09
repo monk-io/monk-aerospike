@@ -1,7 +1,6 @@
 ---
 namespace: aerospike
-
-aerospike:
+base:
   metadata:
     defines: metadata
     name: Aerospike Real-Time Data Platform
@@ -18,6 +17,14 @@ aerospike:
     website: https://aerospike.com/
     publisher: monk.io
     icon: https://aerospike.com/wp-content/themes/pro-child/dist/img/logo.png
+  containers:
+    base:
+      image: aerospike
+      image-tag: <- `${image_tag}`
+      paths:
+        - <- `${monk-volume-path}/aerospike:/opt/aerospike/data`
+aerospike:
+  inherits: aerospike/base
   defines: runnable
   variables:
     image_tag:
@@ -27,18 +34,9 @@ aerospike:
       env: SERVICE_PORT
       type: string
       value: 3000
-  containers:
-    base:
-      image: aerospike
-      image-tag: <- `${image_tag}`
-      paths:
-        - <- `${monk-volume-path}/aerospike:/opt/aerospike/data`
   services:
     base-svc:
-      port: <- `${service_port}`
-      container: base
-      protocol: tcp
-    base-svc-ext:
+      port: 3000
       container: base
       protocol: tcp
       host-port: <- `${service_port}`
