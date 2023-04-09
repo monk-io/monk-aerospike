@@ -1,13 +1,23 @@
+---
 namespace: aerospike
 
 aerospike:
   metadata:
     defines: metadata
     name: Aerospike Real-Time Data Platform
-    description: Real-time data platform - multi-model NoSQL cloud managed database service enables high performance, scale and low cost global operations.
+    description: |
+      Aerospike is a high-performance, distributed NoSQL database management system that is designed to handle large amounts of data with low latency and high throughput. It is optimized for use cases that require fast data access, such as real-time bidding, fraud detection, and recommendation engines.
+
+      Aerospike uses a key-value data model, where data is stored as key-value pairs. It also includes support for complex data types such as lists, maps, and sets. Aerospike is designed to be highly scalable and fault-tolerant, with built-in support for data replication, automatic data distribution across multiple nodes, and automatic failover in case of node failure.
+
+      Aerospike is also highly optimized for performance, with a number of features that reduce latency and improve throughput. For example, it uses a hybrid memory architecture that combines DRAM and flash memory to maximize performance and minimize cost.
+
+      Aerospike provides a SQL-like query language called Aerospike Query Language (ASQL), as well as APIs for popular programming languages such as Java, Python, and C#. It also includes a web-based interface called Aerospike Management Console (AMC), which allows administrators to monitor performance, manage nodes, and perform backups and restores.
+
+      Overall, Aerospike is a highly performant and scalable NoSQL database management system that is well-suited for use cases that require low latency and high throughput. It is used in a variety of applications, including e-commerce, ad tech, and financial services.
     website: https://aerospike.com/
     publisher: monk.io
-    icon: https://aerospike.com/wp-content/themes/pro-child/dist/img/logo.png 
+    icon: https://aerospike.com/wp-content/themes/pro-child/dist/img/logo.png
   defines: runnable
   variables:
     image_tag:
@@ -17,18 +27,18 @@ aerospike:
       env: SERVICE_PORT
       type: string
       value: 3000
-    volume_local:
-      type: string
-      value: <- `${monk-volume-path}/aerospike`
   containers:
-    db:
-      image: 'aerospike'
+    base:
+      image: aerospike
       image-tag: <- `${image_tag}`
       paths:
-        - <- `${volume_local}:/opt/aerospike/data`
+        - <- `${monk-volume-path}/aerospike:/opt/aerospike/data`
   services:
-    mssql-svc:
+    base-svc:
       port: <- `${service_port}`
-      container: db
+      container: base
+      protocol: tcp
+    base-svc-ext:
+      container: base
       protocol: tcp
       host-port: <- `${service_port}`
