@@ -1,0 +1,143 @@
+---
+title: Aerospike
+description: Ready-to-run Aerospike container template you can run directly or inherit to integrate a high-performance NoSQL database into your stack.
+primary_category: database
+tags: [aerospike, nosql, database, template, runnable, key-value, distributed, real-time]
+integration_type: template
+hosting_models: [self-hosted]
+website_url: https://aerospike.com/
+docs_url: https://aerospike.com/docs/
+publisher: monk.io
+---
+
+## Overview
+
+This template provides a production‑ready Aerospike instance as a Monk runnable. You can:
+
+- Run it directly to get a managed Aerospike container with sensible defaults
+- Inherit it in your own runnable to seamlessly add a high-performance NoSQL database to your stack
+
+It exposes Aerospike on port 3000, persists data to a host volume, and is optimized for use cases that require low latency and high throughput such as real-time bidding, fraud detection, and recommendation engines.
+
+## What this template manages
+
+- Aerospike container (`aerospike` image, configurable tag)
+- Network service on port 3000
+- Persistent volume for data storage
+- Hybrid memory architecture combining DRAM and flash memory for optimal performance
+
+## Quick start (run directly)
+
+1) Load templates
+
+```bash
+monk load MANIFEST
+```
+
+2) Run Aerospike with defaults
+
+```bash
+monk run aerospike/aerospike
+```
+
+3) Customize configuration (recommended via inheritance)
+
+Running directly uses the defaults defined in this template's `variables`. To customize, you can either:
+
+- Preferred: inherit and override variables as shown below.
+- Alternative: fork/clone and edit the `variables` in `aerospike.yml`, then `monk load MANIFEST` and run.
+
+Once started, connect to `localhost:3000` (or the runnable hostname inside Monk networks) to access the Aerospike service.
+
+## Configuration
+
+Key variables you can customize in this template:
+
+```yaml
+variables:
+  image_tag: "ce-6.2.0.7_1"    # container image tag
+  service_port: 3000            # service port (env: SERVICE_PORT)
+```
+
+Data is persisted under `${monk-volume-path}/aerospike:/opt/aerospike/data` on the host.
+
+## Use by inheritance (recommended for apps)
+
+Inherit the Aerospike runnable in your application and declare a connection. Example:
+
+```yaml
+namespace: myapp
+db:
+  defines: runnable
+  inherits: aerospike/aerospike
+api:
+  defines: runnable
+  containers:
+    api:
+      image: myorg/api
+  connections:
+    database:
+      runnable: db
+      service: base-svc
+  variables:
+    database-host:
+      value: <- connection-hostname("database")
+    database-port:
+      value: "3000"
+```
+
+Then run your app:
+
+```bash
+monk run myapp/api
+```
+
+## Ports and connectivity
+
+- Service: `base-svc` on TCP port `3000`
+- From other runnables in the same process group, use `connection-hostname("<connection-name>")` to resolve the DB host.
+
+## Persistence
+
+- Data path: `${monk-volume-path}/aerospike:/opt/aerospike/data`
+- All data is automatically persisted to the host volume, ensuring data durability across container restarts.
+
+## Key features
+
+- **High Performance**: Optimized for low latency and high throughput operations
+- **Distributed Architecture**: Built-in support for data replication and automatic data distribution
+- **Fault Tolerance**: Automatic failover in case of node failure
+- **Hybrid Memory**: Combines DRAM and flash memory to maximize performance and minimize cost
+- **Key-Value Model**: Supports key-value pairs with complex data types (lists, maps, sets)
+
+## Use cases
+
+Aerospike is particularly well-suited for:
+
+- Real-time bidding platforms
+- Fraud detection systems
+- Recommendation engines
+- E-commerce applications
+- Ad tech solutions
+- Financial services
+- Any application requiring fast data access with high throughput
+
+## Troubleshooting
+
+- Ensure the host volumes are writable by the container user.
+- Check logs:
+
+```bash
+monk logs -l 500 -f aerospike/aerospike
+```
+
+- Verify the service is listening on the expected port:
+
+```bash
+monk describe aerospike/aerospike
+```
+
+## Related tools
+
+- **Aerospike Query Language (ASQL)**: SQL-like query language for Aerospike
+- **Aerospike Management Console (AMC)**: Web-based interface for monitoring and managing Aerospike clusters
